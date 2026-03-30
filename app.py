@@ -1,13 +1,23 @@
 from flask import Flask
 from routes.bookings import booking_bp
 from routes.auth import auth_bp
+from routes.housekeeping import housekeeping_bp
+from routes.billing import billing_bp
+from routes.reports import reports_bp
 
 app = Flask(__name__)
 
-# Register Blueprints
-app.register_blueprint(booking_bp, url_prefix='/api/bookings')
+# Registering all the modules we built step-by-step
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
+app.register_blueprint(booking_bp, url_prefix='/api/bookings')
+app.register_blueprint(housekeeping_bp, url_prefix='/api/housekeeping')
+app.register_blueprint(billing_bp, url_prefix='/api/billing')
+app.register_blueprint(reports_bp, url_prefix='/api/reports')
+
+@app.route('/')
+def index():
+    return {"status": "Hotel Management System API is Online"}, 200
 
 if __name__ == '__main__':
-    print("Server running on http://localhost:5000")
-    app.run(debug=True)
+    # Running on port 5000
+    app.run(debug=True, port=5000)
