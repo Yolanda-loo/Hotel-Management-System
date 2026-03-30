@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxeStay | Hotel Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <nav class="bg-blue-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold italic">LuxeStay HMS</h1>
+            <div class="space-x-6">
+                <button onclick="showTab('bookings')" class="hover:text-blue-300">Bookings</button>
+                <button onclick="showTab('housekeeping')" class="hover:text-blue-300">Housekeeping</button>
+                <button onclick="showTab('reports')" class="hover:text-blue-300">Reports</button>
+                <span id="user-badge" class="bg-blue-700 px-3 py-1 rounded-full text-sm">Staff: Admin</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
+        
+        <section id="bookings-tab" class="tab-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold border-b-2 border-blue-500">Live Reservations</h2>
+                <button onclick="openBookingModal()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">+ New Booking</button>
+            </div>
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-200 text-gray-700">
+                        <th class="p-3">Room</th>
+                        <th class="p-3">Guest</th>
+                        <th class="p-3">Check-In</th>
+                        <th class="p-3">Total</th>
+                        <th class="p-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="bookings-list">
+                    </tbody>
+            </table>
+        </section>
+
+        <section id="housekeeping-tab" class="tab-content hidden">
+            <h2 class="text-2xl font-semibold mb-6">Room Status & Cleaning</h2>
+            <div id="rooms-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                </div>
+        </section>
+
+        <section id="reports-tab" class="tab-content hidden">
+            <h2 class="text-2xl font-semibold mb-6">Manager Insights</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-6 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-gray-500">Occupancy Rate</p>
+                    <h3 id="stat-occupancy" class="text-3xl font-bold text-blue-800">--%</h3>
+                </div>
+                <div class="p-6 bg-green-50 rounded-lg border border-green-200">
+                    <p class="text-gray-500">Total Revenue</p>
+                    <h3 id="stat-revenue" class="text-3xl font-bold text-green-800">R0.00</h3>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // TAB LOGIC
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(tabId + '-tab').classList.remove('hidden');
+            if(tabId === 'reports') loadReports();
+            if(tabId === 'housekeeping') loadHousekeeping();
+        }
+
+        // FETCH DATA FROM FLASK API
+        async function loadReports() {
+            const occRes = await fetch('/api/reports/occupancy');
+            const occData = await occRes.json();
+            document.getElementById('stat-occupancy').innerText = occData.occupancy_percentage + '%';
+
+            const revRes = await fetch('/api/reports/revenue');
+            const revData = await revRes.json();
+            document.getElementById('stat-revenue').innerText = 'R' + (revData.total_revenue || 0);
+        }
+
+        async function loadHousekeeping() {
+            const res = await fetch('/api/housekeeping/status');
+            const rooms = await res.json();
+            const grid = document.getElementById('rooms-grid');
+            grid.innerHTML = rooms.map(room => `
+                <div class="p-4 border rounded shadow-sm ${room.status === 'Clean' ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}">
+                    <h4 class="font-bold text-lg">Room ${room.room_id}</h4>
+                    <p class="text-sm text-gray-600">${room.type}</p>
+                    <p class="mt-2 font-semibold">${room.status}</p>
+                    <button onclick="updateStatus('${room.room_id}', 'Clean')" class="mt-2 text-xs bg-white border px-2 py-1 rounded">Mark Clean</button>
+                </div>
+            `).join('');
+        }
+
+        async function updateStatus(id, status) {
+            await fetch('/api/housekeeping/update', {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({room_id: id, status: status})
+            });
+            loadHousekeeping();
+        }
+    </script>
+</body>
+</html>

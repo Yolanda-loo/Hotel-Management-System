@@ -4,6 +4,7 @@ from routes.auth import auth_bp
 from routes.housekeeping import housekeeping_bp
 from routes.billing import billing_bp
 from routes.reports import reports_bp
+from flask import render_template
 
 app = Flask(__name__)
 
@@ -17,6 +18,13 @@ app.register_blueprint(reports_bp, url_prefix='/api/reports')
 @app.route('/')
 def index():
     return {"status": "Hotel Management System API is Online"}, 200
+
+
+#Adding the template route for dashboard
+@app.route('/')
+def dashboard():
+    return render_template('index.html')
+
 
 if __name__ == '__main__':
     # Running on port 5000
