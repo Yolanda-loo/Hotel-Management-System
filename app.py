@@ -1,5 +1,5 @@
 from flask import Flask
-from routes.bookings import booking_bp
+from routes.reservations import booking_bp
 from routes.auth import auth_bp
 from routes.housekeeping import housekeeping_bp
 from routes.billing import billing_bp

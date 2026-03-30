@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from database import bookings_col, rooms_col
 from models.booking_logic import check_availability, calculate_total
+from datetime import datetime
 
 booking_bp = Blueprint('bookings', __name__)
 

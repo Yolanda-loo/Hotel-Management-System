@@ -1,14 +1,11 @@
 from flask import Blueprint, request, jsonify
 from database import bookings_col
 from bson import ObjectId # Required to query by MongoDB ID
-
-
-
-
-billing_bp = Blueprint('billing', __name__)
 from flask import send_file
 from utils.pdf_generator import create_invoice_pdf
-from models.billing_logic import generate_invoice_data
+from models.billing_logic import generate_invoice_data, add_service_charge
+
+billing_bp = Blueprint('billing', __name__)
 
 @billing_bp.route('/download-invoice/<booking_id>', methods=['GET'])
 def download_invoice(booking_id):
