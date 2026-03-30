@@ -105,6 +105,14 @@
             });
             loadHousekeeping();
         }
+        // Inside your bookings list mapping
+`<button onclick="downloadInvoice('${booking._id}')" class="text-blue-600 underline">
+    Download PDF
+</button>`
+
+async function downloadInvoice(bookingId) {
+    window.location.href = `/api/billing/download-invoice/${bookingId}`;
+}
     </script>
 </body>
 </html>
