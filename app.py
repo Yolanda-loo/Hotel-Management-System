@@ -1,10 +1,13 @@
 from flask import Flask
-import routes.bookings
+from routes.bookings import booking_bp
+from routes.auth import auth_bp
 
 app = Flask(__name__)
 
-# Register the routes
-app.register_blueprint(routes.bookings.booking_bp, url_prefix='/api/bookings')
+# Register Blueprints
+app.register_blueprint(booking_bp, url_prefix='/api/bookings')
+app.register_blueprint(auth_bp, url_prefix='/api/auth')
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    print("Server running on http://localhost:5000")
+    app.run(debug=True)
